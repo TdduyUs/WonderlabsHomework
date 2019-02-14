@@ -1,47 +1,51 @@
 import React, {Component} from "react";
-import {Image, View, AsyncStorage, BackHandler, ListView, Dimensions} from "react-native";
+import {Text, View, AsyncStorage, Dimensions, ScrollView} from "react-native";
 
 import {
 	Container,
 	Button,
-	H3,
-	Text,
 	Header,
 	Title,
 	Body,
 	Left,
 	Right,
-	ListItem,
 	Icon,
-	Content,
-	Badge,
 	Spinner,
+	Content,
+	Footer,
+	FooterTab,
+	Row,
+	Col
 } from "native-base";
+import AutoHeightImage from 'react-native-auto-height-image';
 
 import customStyles from "./styles";
 import styles from "./styles";
 import {Global} from '../../config/global';
 
-const deviceHeight = Dimensions.get('window').height;
+const deviceWidth = Dimensions.get('window').width;
+const defaultImg = require("../../assets/images/default-img.png");
 
+let params = null
 
 class ProductDetail extends Component {
 
 	constructor(props) {
-
-		console.log("123");
-
 		super(props);
+
+		params = this.props.navigation.state.params;
+
 		this.state = {
 			isLoading: true,
-			listProducts: []
+			product: null,
+			width: null,
+			height: null
 		};
 
-		this.handleBackButtonClick = this.handleBackButtonClick.bind(this);
 	}
 
 	componentDidMount() {
-		fetch(Global.API.getProductDetail, {
+		fetch(Global.API.getProductDetail + params.id, {
 			method: "GET",
 			headers: {
 				'Accept': 'application/json',
@@ -50,9 +54,9 @@ class ProductDetail extends Component {
 		})
 			.then((response) => response.json())
 			.then((responseJson) => {
-				console.log(responseJson.data);
+				console.log(responseJson);
 				this.setState({
-					'listProducts': responseJson.data,
+					'product': responseJson,
 					'isLoading': false,
 				});
 			})
@@ -61,31 +65,18 @@ class ProductDetail extends Component {
 			});
 	}
 
-	componentWillMount() {
-		BackHandler.addEventListener('hardwareBackPress', this.handleBackButtonClick);
-	}
-
-	componentWillUnmount() {
-		BackHandler.removeEventListener('hardwareBackPress', this.handleBackButtonClick);
-	}
-
-	handleBackButtonClick() {
-		this.props.navigation.goBack(null);
-		return true;
-	}
-
 	render() {
 
 		return (
-			<Container>
-				<Header iosBarStyle="light-content">
+			<Container style={styles.mainContainer}>
+				<Header style={{backgroundColor: "#ffffff"}}>
 					<Left>
-						<Button transparent onPress={() => this.props.navigation.navigate("DrawerOpen")}>
+						<Button transparent onPress={() => this.props.navigation.openDrawer()}>
 							<Icon name="menu" style={{color: 'black'}}/>
 						</Button>
 					</Left>
 					<Body style={{flex: 1, flexDirection: 'row', justifyContent: 'center'}}>
-					<Title style={styles.headerTitle}> PRODUCTS</Title>
+					<Title style={styles.headerTitle}> {params.name}</Title>
 					</Body>
 					<Right style={{flex: 0.5}}>
 
@@ -101,14 +92,58 @@ class ProductDetail extends Component {
 						);
 					}
 					else {
+						let img = null;
+						let {product} = this.state
+						if (!!product.images){
+							img = {uri: product.images[0].src};
+						}
+						else
+							img = defaultImg;
+						const regex = /(<([^>]+)>)/ig;
 						return (
-							<View style={{backgroundColor: "#f2f2f2", marginBottom: 60}}>
+							<View style={{flex: 1}}>
+								<ScrollView>
+									<AutoHeightImage
+										width={deviceWidth}
+										source={img}
+									/>
+									<View style={styles.productInfo}>
+										<Text style={styles.productTitle}>{product.name}</Text>
+										<Text style={styles.productDescription}>{product.description.replace(regex, '')}</Text>
+										<View style={styles.variantsWrapper}>
+											<Text style={styles.productTitle}>Variants Created</Text>
+										</View>
+									</View>
 
+								</ScrollView>
 							</View>
 						);
 
 					}
 				})()}
+				<Footer>
+					<FooterTab style={styles.footerTab}>
+						<Row>
+							<Col size={2.5}>
+								<Button vertical>
+									<Icon name="more" style={styles.footerTabIcon} />
+									<Text style={styles.footerTabTxt}>More</Text>
+								</Button>
+							</Col>
+							<Col size={2.5}>
+								<Button vertical>
+									<Icon name="cart" style={styles.footerTabIcon} />
+									<Text style={styles.footerTabTxt}>Cart</Text>
+								</Button>
+							</Col>
+							<Col size={5}>
+								<View style={styles.FooterBuyButton}>
+									<Text style={styles.FooterBuyTxt} onPress={() => { console.log('Buy clicked')}}>BUY</Text>
+								</View>
+							</Col>
+						</Row>
+					</FooterTab>
+				</Footer>
 			</Container>
 		);
 	}

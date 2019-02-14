@@ -96,14 +96,14 @@ class Home extends Component {
 									style={ styles.homeList}
 									data={this.state.listProducts}
 									// initialNumToRender={10}
-									keyExtractor={item => String(item.id)}
-									onEndReachedThreshold={0.5}
 									// onEndReached={() => this.onEndReached()}
 									// ListFooterComponent={!refreshing && load_more ? <ActivityIndicator /> : null}
+									keyExtractor={item => String(item.id)}
+									onEndReachedThreshold={0.5}
 									renderItem={({ item, index }) =>
 										<ItemCard
 											key={index}
-											_clickItem={() => this.props.navigation.navigate("ProductDetail", { id: item.id })}
+											_clickItem={() => this.props.navigation.navigate("ProductDetail", { id: item.id, name: item.name })}
 											item={item} />
 									} />
 
