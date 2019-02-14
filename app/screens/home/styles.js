@@ -1,8 +1,7 @@
 const React = require("react-native");
 
-const {StyleSheet, Dimensions, Platform} = React;
+const {Dimensions, Platform} = React;
 
-const deviceHeight = Dimensions.get("window").height;
 const deviceWidth = Dimensions.get("window").width;
 
 const marginNumber = 10;
@@ -16,7 +15,7 @@ export default {
         marginBottom: 65
     },
     text: {
-        color: "#D8D8D8",
+        color: "#AAAAAA",
         bottom: 6,
         marginTop: 5
     },
@@ -49,5 +48,8 @@ export default {
         right: 0,
         top: -10,
         position: 'absolute'
+    },
+    headerTitle:{
+        color: '#030303'
     }
 };
