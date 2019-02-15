@@ -44,6 +44,33 @@ export default {
         borderWidth: 1,
         borderBottomColor: txtColor,
         flex: 1
+    },
+    modal:{
+        height: 300,
+        borderTopLeftRadius: 10,
+        borderTopRightRadius: 10,
+        alignItems: 'center',
+        padding: 10,
+        zIndex: 9999
+    },
+    modalText:{
+        fontWeight: 'bold'
+    },
+    modalButtonClose:{
+        height: 70,
+        position: 'absolute',
+        top: 220,
+        left: 60,
+        right: 60,
+        borderRadius: 10,
+        backgroundColor: '#D0021B',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    modalButtonCloseText:{
+        fontSize: 20,
+        color: '#fff',
+        fontWeight: 'bold'
     }
 
 };
