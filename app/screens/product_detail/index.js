@@ -18,6 +18,7 @@ import {
 	Col
 } from "native-base";
 import AutoHeightImage from 'react-native-auto-height-image';
+import Modal from 'react-native-modalbox';
 
 import customStyles from "./styles";
 import styles from "./styles";
@@ -25,6 +26,8 @@ import {Global} from '../../config/global';
 
 const deviceWidth = Dimensions.get('window').width;
 const defaultImg = require("../../assets/images/default-img.png");
+
+import {firebaseApp, Firebase} from '../../config/firebaseConfig';
 
 let params = null
 
@@ -38,9 +41,11 @@ class ProductDetail extends Component {
 		this.state = {
 			isLoading: true,
 			product: null,
-			width: null,
-			height: null
+			variant_id: null,
+			showFooter: true
 		};
+
+		this.dataRef = firebaseApp.database();
 
 	}
 
@@ -54,7 +59,6 @@ class ProductDetail extends Component {
 		})
 			.then((response) => response.json())
 			.then((responseJson) => {
-				console.log(responseJson);
 				this.setState({
 					'product': responseJson,
 					'isLoading': false,
@@ -100,7 +104,11 @@ class ProductDetail extends Component {
 						else
 							img = defaultImg;
 						const regex = /(<([^>]+)>)/ig;
+
+						let that = this
+
 						return (
+
 							<View style={{flex: 1}}>
 								<ScrollView>
 									<AutoHeightImage
@@ -112,40 +120,81 @@ class ProductDetail extends Component {
 										<Text style={styles.productDescription}>{product.description.replace(regex, '')}</Text>
 										<View style={styles.variantsWrapper}>
 											<Text style={styles.productTitle}>Variants Created</Text>
+											{
+
+											}
 										</View>
 									</View>
-
 								</ScrollView>
+								<Modal
+									style={[styles.modal, styles.modal]}
+									position={"bottom"}
+									ref={"modal"}
+									onClosed={this.onClose.bind(that)}
+								>
+									<Text style={styles.modalText}>BUY WAS TAPPED</Text>
+									<Text>{this.state.variant_id}</Text>
+									<Button style={styles.modalButtonClose} onPress={() => this.refs.modal.close()}>
+										<Text style={styles.modalButtonCloseText}>CLOSE THIS MODAL</Text>
+									</Button>
+								</Modal>
 							</View>
 						);
 
 					}
 				})()}
-				<Footer>
-					<FooterTab style={styles.footerTab}>
-						<Row>
-							<Col size={2.5}>
-								<Button vertical>
-									<Icon name="more" style={styles.footerTabIcon} />
-									<Text style={styles.footerTabTxt}>More</Text>
-								</Button>
-							</Col>
-							<Col size={2.5}>
-								<Button vertical>
-									<Icon name="cart" style={styles.footerTabIcon} />
-									<Text style={styles.footerTabTxt}>Cart</Text>
-								</Button>
-							</Col>
-							<Col size={5}>
-								<View style={styles.FooterBuyButton}>
-									<Text style={styles.FooterBuyTxt} onPress={() => { console.log('Buy clicked')}}>BUY</Text>
-								</View>
-							</Col>
-						</Row>
-					</FooterTab>
-				</Footer>
+				{
+					this.state.showFooter && <Footer>
+						<FooterTab style={styles.footerTab}>
+							<Row>
+								<Col size={2.5}>
+									<Button vertical>
+										<Icon name="more" style={styles.footerTabIcon} />
+										<Text style={styles.footerTabTxt}>More</Text>
+									</Button>
+								</Col>
+								<Col size={2.5}>
+									<Button vertical>
+										<Icon name="cart" style={styles.footerTabIcon} />
+										<Text style={styles.footerTabTxt}>Cart</Text>
+									</Button>
+								</Col>
+								<Col size={5}>
+									<View style={styles.FooterBuyButton}>
+										<Text style={styles.FooterBuyTxt} onPress={() => this.handleSubmit() }>BUY</Text>
+									</View>
+								</Col>
+							</Row>
+						</FooterTab>
+					</Footer>
+				}
+
 			</Container>
 		);
+	}
+
+	onClose() {
+		this.setState({showFooter: true})
+	}
+
+	handleSubmit = () => {
+		this.addItem(this.state.product.id);
+		console.log('Item saved successfully');
+	};
+
+	addItem(product_id){
+		let randomKey = this.dataRef.ref('/variant').push().key
+		this.setState({variant_id: randomKey})
+		this.dataRef.ref('/variant').push({
+			product_id: product_id,
+			datetime_created: Firebase.database.ServerValue.TIMESTAMP,
+			variant_id: randomKey
+		})
+
+		this.setState({showFooter: false})
+		setTimeout(function () {
+			this.refs.modal.open()
+		}.bind(this), 100);
 	}
 }
 
