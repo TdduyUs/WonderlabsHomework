@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import {Text, View, AsyncStorage, Dimensions, ScrollView} from "react-native";
+import {Text, View, AsyncStorage, Dimensions, ScrollView, TouchableOpacity} from "react-native";
 
 import {
 	Container,
@@ -42,7 +42,8 @@ class ProductDetail extends Component {
 			isLoading: true,
 			product: null,
 			variant_id: null,
-			showFooter: true
+			showFooter: true,
+			variant_id_list: []
 		};
 
 		this.dataRef = firebaseApp.database();
@@ -75,9 +76,9 @@ class ProductDetail extends Component {
 			<Container style={styles.mainContainer}>
 				<Header style={{backgroundColor: "#ffffff"}}>
 					<Left>
-						<Button transparent onPress={() => this.props.navigation.openDrawer()}>
+						<TouchableOpacity onPress={() => this.props.navigation.openDrawer()}>
 							<Icon name="menu" style={{color: 'black'}}/>
-						</Button>
+						</TouchableOpacity>
 					</Left>
 					<Body style={{flex: 1, flexDirection: 'row', justifyContent: 'center'}}>
 					<Title style={styles.headerTitle}> {params.name}</Title>
@@ -121,20 +122,35 @@ class ProductDetail extends Component {
 										<View style={styles.variantsWrapper}>
 											<Text style={styles.productTitle}>Variants Created</Text>
 											{
-
+												this.state.variant_id_list.length > 0 && this.state.variant_id_list.map((item, key) => {
+													return (
+														<Text style={styles.modalText} key={key}>{item}</Text>
+													);
+												})
 											}
 										</View>
 									</View>
 								</ScrollView>
 								<Modal
-									style={[styles.modal, styles.modal]}
+									style={styles.modal}
 									position={"bottom"}
-									ref={"modal"}
-									onClosed={this.onClose.bind(that)}
+									ref={"buyModal"}
+									onClosed={this.onCloseBuyModal.bind(that)}
 								>
 									<Text style={styles.modalText}>BUY WAS TAPPED</Text>
 									<Text>{this.state.variant_id}</Text>
-									<Button style={styles.modalButtonClose} onPress={() => this.refs.modal.close()}>
+									<Button style={styles.modalButtonClose} onPress={() => this.refs.buyModal.close()}>
+										<Text style={styles.modalButtonCloseText}>CLOSE THIS MODAL</Text>
+									</Button>
+								</Modal>
+								<Modal
+									style={styles.modal}
+									position={"bottom"}
+									ref={"moreModal"}
+									onClosed={this.onCloseMoreModal.bind(that)}
+								>
+									<Text style={styles.modalText}>MORE WAS TAPPED</Text>
+									<Button style={styles.modalButtonClose} onPress={() => this.refs.moreModal.close()}>
 										<Text style={styles.modalButtonCloseText}>CLOSE THIS MODAL</Text>
 									</Button>
 								</Modal>
@@ -148,7 +164,7 @@ class ProductDetail extends Component {
 						<FooterTab style={styles.footerTab}>
 							<Row>
 								<Col size={2.5}>
-									<Button vertical>
+									<Button vertical onPress={() => this.handleMoreModal()}>
 										<Icon name="more" style={styles.footerTabIcon} />
 										<Text style={styles.footerTabTxt}>More</Text>
 									</Button>
@@ -168,12 +184,15 @@ class ProductDetail extends Component {
 						</FooterTab>
 					</Footer>
 				}
-
 			</Container>
 		);
 	}
 
-	onClose() {
+	onCloseBuyModal() {
+		this.setState({showFooter: true})
+	}
+
+	onCloseMoreModal() {
 		this.setState({showFooter: true})
 	}
 
@@ -191,12 +210,24 @@ class ProductDetail extends Component {
 			variant_id: randomKey
 		})
 
-		this.setState({showFooter: false})
+		this.setState({ variant_id_list: [...this.state.variant_id_list, randomKey] })
+
+		this.showBottomFooter()
 		setTimeout(function () {
-			this.refs.modal.open()
+			this.refs.buyModal.open()
 		}.bind(this), 100);
 	}
-}
 
+	handleMoreModal = () => {
+		this.showBottomFooter()
+		setTimeout(function () {
+			this.refs.moreModal.open()
+		}.bind(this), 100);
+	};
+
+	showBottomFooter(){
+		this.setState({showFooter: false})
+	}
+}
 
 export default ProductDetail;

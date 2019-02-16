@@ -4,11 +4,13 @@ import React from "react";
 import { DrawerNavigator } from "react-navigation";
 
 import Home from "../screens/home/";
+import ProductDetail from "../screens/product_detail";
 import SideBar from "../components/sidebar";
 
 const DrawerExample = DrawerNavigator(
   {
-    Home: { screen: Home }
+    Home,
+    ProductDetail,
   },
   {
     initialRouteName: "Home",

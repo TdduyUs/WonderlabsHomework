@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import {View, BackHandler, FlatList, TouchableOpacity} from "react-native";
+import {View, FlatList, TouchableOpacity} from "react-native";
 
 import {
 	Container,
@@ -23,10 +23,9 @@ class Home extends Component {
 		super(props);
 		this.state = {
 			isLoading: true,
-			listProducts: []
+			listProducts: [],
+			variant_id_list: []
 		};
-
-		this.handleBackButtonClick = this.handleBackButtonClick.bind(this);
 	}
 
 	componentDidMount() {
@@ -47,19 +46,6 @@ class Home extends Component {
 			.catch((error) => {
 				console.warn(error);
 			});
-	}
-
-	componentWillMount() {
-		BackHandler.addEventListener('hardwareBackPress', this.handleBackButtonClick);
-	}
-
-	componentWillUnmount() {
-		BackHandler.removeEventListener('hardwareBackPress', this.handleBackButtonClick);
-	}
-
-	handleBackButtonClick() {
-		this.props.navigation.goBack(null);
-		return true;
 	}
 
 	render() {
@@ -95,9 +81,6 @@ class Home extends Component {
 									numColumns={2}
 									style={ styles.homeList}
 									data={this.state.listProducts}
-									// initialNumToRender={10}
-									// onEndReached={() => this.onEndReached()}
-									// ListFooterComponent={!refreshing && load_more ? <ActivityIndicator /> : null}
 									keyExtractor={item => String(item.id)}
 									onEndReachedThreshold={0.5}
 									renderItem={({ item, index }) =>
